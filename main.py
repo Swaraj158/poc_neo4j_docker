@@ -56,9 +56,12 @@ class Example:
                         MERGE (person)-[:CITIZEN_OF]->(country_citizen)"""
         q_trips = q_trips.replace('{filepath}',csv_path_trips)
         
-        result = tx.run(q_transaction)
+        result1 = tx.run(q_edu)
+        result2 = tx.run(q_work)
+        result3 = tx.run(q_transaction)
+        result4 = tx.run(q_trips)
 
-        return str(result)
+        return str(result1)+str(result2)+str(result3)+str(result4)
 
 
 if __name__ == "__main__":
