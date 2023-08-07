@@ -1,6 +1,37 @@
 Queries
 
-1. Query for most popular country which most persons travelled to
+1. Query to see which countries Person Anil Kumar travelled to
+Query:
+MATCH (person:Person {name: "Anil Kumar"})-[:TRAVELLED_TO]->(country:Country)
+RETURN person,country
+
+2. Query to see where all persons studied
+Query:
+MATCH (person:Person)-[:STUDIED_AT]->(institute:Institute)
+RETURN person,institute
+
+3. Query to see how many transactions made on each day
+Query:
+MATCH (transaction:Transaction)
+WITH transaction.transactiondate AS day, COUNT(transaction) AS numTransactions
+WHERE numTransactions > 1
+RETURN day, numTransactions
+
+4. Query to find in which country person Anil Kumar spent the most
+Query:
+MATCH (person:Person {name: "Anil Kumar"})-[:PERFORMED]->(transaction:Transaction)-[:PERFORMED_IN]->(country:Country)
+WITH person, country, SUM(TOFLOAT(REPLACE(transaction.amount, '$', ''))) AS totalSpent
+ORDER BY totalSpent DESC
+LIMIT 1
+RETURN person.name AS personName, country.country AS countryName, totalSpent AS totalAmountSpent
+
+5. Query to see details for the course 'Ujian Percapaian Sekolah Rendah' done by person Alice Gan
+Query:
+MATCH (person:Person{name:'Alice Gan'})-[:STUDIED_AT]->(institute:Institute)
+WHERE institute.course = 'Ujian Percapaian Sekolah Rendah'
+RETURN institute.nameofinstitution as InstituteName ,institute.startyear,institute.endyear
+
+6. Query for most popular country which most persons travelled to
 Query: 
 MATCH (person:Person)-[:TRAVELLED_TO]->(country:Country)
 WITH country, COUNT(person) AS numberOfTravelers
@@ -8,7 +39,7 @@ ORDER BY numberOfTravelers DESC
 LIMIT 1
 RETURN country.country AS popularCountry, numberOfTravelers
 
-2. Query to Find the top 5 countries with the highest number of travelers
+7. Query to Find the top 5 countries with the highest number of travelers
 Query:
 MATCH (person:Person)-[:TRAVELLED_TO]->(country:Country)
 WITH country, COUNT(person) AS numberOfTravelers
@@ -16,13 +47,13 @@ ORDER BY numberOfTravelers DESC
 LIMIT 5
 RETURN country.country AS countryName, numberOfTravelers
 
-3. Query to Find Average spend of all persons
+8. Query to Find Average spend of all persons
 Query:
 MATCH (person:Person)-[:PERFORMED]->(transaction:Transaction)
 WITH person, TOFLOAT(REPLACE(transaction.amount, '$', '')) AS amount
 RETURN person.name AS personName, AVG(amount) AS averageSpend
 
-4. Query to find who all attended different insitutions
+9. Query to find who all attended different insitutions
 Query:
 MATCH (person:Person)-[:STUDIED_AT]->(institute:Institute)
 WITH person, COLLECT(institute) AS institutes
@@ -30,10 +61,9 @@ WHERE SIZE(institutes) > 1
 UNWIND institutes AS commonInstitute
 RETURN commonInstitute.nameofinstitution AS commonInstituteName, COLLECT(DISTINCT person.name) AS personsAttended
 
-5. Query to find the most common merchant and country for transaction
+10. Query to find the most common merchant and country for transaction
 Query:
 MATCH (transaction:Transaction)-[:PERFORMED_IN]->(country:Country)
 WITH transaction.merchant AS merchant, country.country AS countryName, COLLECT(transaction) AS transactions
 WHERE SIZE(transactions) > 1
 RETURN merchant AS commonMerchant, COLLECT(countryName) AS countriesPerformed
-
